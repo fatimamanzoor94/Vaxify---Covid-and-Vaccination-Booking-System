@@ -3,10 +3,10 @@ FROM php:8.2-apache
 # Install PHP MySQL extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Disable conflicting Apache MPM modules
-RUN a2dismod mpm_event mpm_worker || true
+# Remove ALL Apache MPM modules first
+RUN a2dismod mpm_event mpm_worker mpm_prefork || true
 
-# Enable the required Apache modules
+# Enable only prefork MPM + rewrite
 RUN a2enmod mpm_prefork rewrite
 
 # Configure Apache to listen on port 8080
@@ -18,6 +18,7 @@ COPY . /var/www/html/
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
+    && mkdir -p /var/www/html/uploads \
     && chmod -R 775 /var/www/html/uploads
 
 EXPOSE 8080
