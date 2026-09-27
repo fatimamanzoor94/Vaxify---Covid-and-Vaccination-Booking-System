@@ -1,24 +1,18 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
 # Install PHP MySQL extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Remove ALL Apache MPM modules first
-RUN a2dismod mpm_event mpm_worker mpm_prefork || true
-
-# Enable only prefork MPM + rewrite
-RUN a2enmod mpm_prefork rewrite
-
-# Configure Apache to listen on port 8080
-RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf \
-    && sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8080>/' /etc/apache2/sites-available/000-default.conf
-
 # Copy project files
 COPY . /var/www/html/
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && mkdir -p /var/www/html/uploads \
+# Create uploads folder and set permissions
+RUN mkdir -p /var/www/html/uploads \
+    && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/uploads
 
+# Railway will provide PORT
 EXPOSE 8080
+
+# Start PHP built-in server
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-8080} -t /var/www/html"]
