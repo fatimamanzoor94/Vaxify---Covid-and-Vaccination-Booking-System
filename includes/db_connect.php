@@ -1,8 +1,4 @@
-
 <?php
-
-// Railway database environment variables
-// Local XAMPP fallback is retained for development.
 
 $host = getenv('MYSQLHOST') ?: 'localhost';
 $port = getenv('MYSQLPORT') ?: '3306';
@@ -15,7 +11,7 @@ $conn = new mysqli(
     $user,
     $pass,
     $db,
-    (int)$port
+    (int) $port
 );
 
 if ($conn->connect_error) {
@@ -24,5 +20,3 @@ if ($conn->connect_error) {
 }
 
 $conn->set_charset("utf8mb4");
-
-?>
